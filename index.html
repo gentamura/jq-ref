@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>jQuery日本語リファレンス</title>
+  <link rel="stylesheet" href="normalize.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous" charset="utf-8"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="search">
+      <input type="search" name="" value="" class="search-input">
+    </div>
+    <div class="content">
+      <ul class="content-list"></ul>
+    </div>
+  </div>
+  <script>
+    $(() => {
+
+      // jquery-pjax か 普通に pushStateを利用して、URLを書き換える必要がある。
+      // https://github.com/defunkt/jquery-pjax
+      // http://qiita.com/PianoScoreJP/items/fa66f357419fece0e531#historypushstatestate-title-url
+
+      // 開発が完了したら、minifiyしてできるだけ軽くし、初期ロードをできるだけ早くする
+
+      // 表示
+      const $contentList = $('.content-list');
+      $.getJSON('data.json', (data) => {
+        data.forEach((obj) => {
+          // createLi($contentList, obj); // カテゴリ
+          if (obj.methods) {
+            obj.methods.forEach((obj) => {
+              createLi($contentList, obj); // メソッド
+            });
+          }
+        });
+      });
+
+      // 検索
+      const $search = $('.search-input');
+      $search.on('keyup', (e) => {
+        const inputVal = $(e.currentTarget).val();
+        const $li = $('li', $contentList);
+        $li.each((i, val) => {
+          const re = new RegExp(inputVal, 'gi'); // 大文字小文字区別なく検索
+          if ($(val).text().match(re)) {
+            $(val).show();
+          } else {
+            $(val).hide();
+          }
+        });
+      });
+    });
+
+    function createLi($target, obj) {
+      const $li = $('<li class="content-list-item">');
+      const $a = $('<a>');
+      $a.attr('href', obj.link);
+      $a.html(obj.title);
+      $li.html($a);
+      $target.append($li);
+    }
+  </script>
+</body>
+</html>
